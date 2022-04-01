@@ -15,7 +15,7 @@ import styles from './SliderBox.style';
 // onCurrentImagePressed
 // sliderBoxHeight
 // parentWidth
-// dotColor 
+// dotColor
 // inactiveDotColor
 // dotStyle
 // paginationBoxVerticalPadding
@@ -39,8 +39,10 @@ export class SliderBox extends Component {
     this.state = {
       currentImage: props.firstItem || 0,
       loading: [],
+      loadingError: [],
     };
-    this.onCurrentImagePressedHandler = this.onCurrentImagePressedHandler.bind(this);
+    this.onCurrentImagePressedHandler =
+      this.onCurrentImagePressedHandler.bind(this);
     this.onSnap = this.onSnap.bind(this);
     this._renderItem = this._renderItem.bind(this);
   }
@@ -74,8 +76,8 @@ export class SliderBox extends Component {
       resizeMethod,
       resizeMode,
       imageLoadingColor = '#E91E63',
-      underlayColor = "transparent",
-      activeOpacity=0.85
+      underlayColor = 'transparent',
+      activeOpacity = 0.85,
     } = this.props;
     return (
       <View
@@ -88,9 +90,7 @@ export class SliderBox extends Component {
           underlayColor={underlayColor}
           disabled={disableOnPress}
           onPress={this.onCurrentImagePressedHandler}
-          activeOpacity={activeOpacity}
-        >
-
+          activeOpacity={activeOpacity}>
           <ImageComponent
             style={[
               {
@@ -100,11 +100,27 @@ export class SliderBox extends Component {
               },
               ImageComponentStyle,
             ]}
-            source={typeof item === 'string' ? {uri: item} : item}
+            source={
+              this.state.loadingError[index] == true
+                ? require('../../../assests/img_not_found.png')
+                : typeof item === 'string'
+                ? {uri: item}
+                : item
+            }
             resizeMethod={resizeMethod || 'resize'}
             resizeMode={resizeMode || 'cover'}
-            //onLoad={() => {}}
-            //onLoadStart={() => {}}
+            onError={() => {
+              console.log(
+                'slider box image load error -->' +
+                  this.state.loadingError[index],
+              );
+              let t = this.state.loading;
+              t[index] = true;
+              this.setState({loading: t});
+              let t1 = this.state.loadingError;
+              t1[index] = true;
+              this.setState({loadingError: t1});
+            }}
             onLoadEnd={() => {
               let t = this.state.loading;
               t[index] = true;
@@ -170,7 +186,7 @@ export class SliderBox extends Component {
       parentWidth,
       loopClonesPerSide,
       autoplayDelay,
-      useScrollView
+      useScrollView,
     } = this.props;
     return (
       <View>
@@ -179,7 +195,7 @@ export class SliderBox extends Component {
           layout={'default'}
           useScrollView={useScrollView}
           data={images}
-          ref={(c) => (this._ref = c)}
+          ref={c => (this._ref = c)}
           loop={circleLoop || false}
           enableSnap={true}
           autoplay={autoplay || false}
@@ -187,7 +203,7 @@ export class SliderBox extends Component {
           sliderWidth={parentWidth || width}
           loopClonesPerSide={loopClonesPerSide || 5}
           renderItem={this._renderItem}
-          onSnapToItem={(index) => this.onSnap(index)}
+          onSnapToItem={index => this.onSnap(index)}
           {...this.props}
         />
         {images.length > 1 && this.pagination}
@@ -203,5 +219,6 @@ const colors = {
 
 SliderBox.defaultProps = {
   ImageComponent: Image,
-  LoaderComponent: ActivityIndicator
+  LoaderComponent: ActivityIndicator,
 };
+
